@@ -1,15 +1,17 @@
-This action prints lists swagger errors and comparison diffs.
+This action lists swagger schema errors and comparisons. (swagger version 2 and 3)
 
-## Project Overview:
-   Exploring 'openapi-diff' capabilities for finding API breaking changes, and
-   exploring 'openapi-schema-validator' capabilities for swagger schema validation.
+## Action Overview:
+This action validates a swagger schema using 'swagger-parser' capabilities for swagger schema validation and using 'openapi-diff' capabilities for finding API breaking changes.
 
 
-## npm packages used:
+### npm packages used:
 Following both packages support swagger2 & openapi3 (i.e. swagger version 2 and 3)
 
+```
 https://www.npmjs.com/package/openapi-diff
-https://www.npmjs.com/package/openapi-schema-validator
+
+https://www.npmjs.com/package/swagger-parser
+```
 
 ## Inputs
 
@@ -25,11 +27,15 @@ https://www.npmjs.com/package/openapi-schema-validator
 
 **Required** OpenAPI version [2 for swagger2, 3 for openapi3 ].
 
+### `blocking_decision`
+
+**Required** Decision to be taken on remaining steps if current action fails [strict for block, none for non-block (default)].
+
 
 ## Outputs
 
 ### `swagger_validation_results`
-Errors found in Swagger schema
+Errors found in Swagger schema validation
 
 ### `openapi_diff_results`
 Diffs found in Swagger schema comparison against the benchmark file
@@ -70,7 +76,7 @@ jobs:
     steps:
       - name: run swagger validations
         id: step1
-        uses: kushal-omnius/openapi-validations@v1.2.1
+        uses: far11ven/openapi-validations@v1.0.2
         with:
           benchmark_file:  ${{ github.event.inputs.benchmark_file }}
           source_file:  ${{ github.event.inputs.source_file }}
@@ -82,4 +88,11 @@ jobs:
         run: |
           echo "The Errors found in Swagger schema: ${{ steps.step1.outputs.swagger_validation_results }}"
           echo "The Diffs found in Swagger schema comparison ${{ steps.step1.outputs.openapi_diff_results }}"
+
 ```
+
+## todos:
+
+- [x] workflow blocking decision support
+- [ ] add yaml support
+- [ ] conditional support for only including validation or diff

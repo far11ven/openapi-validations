@@ -1,0 +1,27 @@
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  benchmark_file:  # benchmark swagger file
+    description: 'Source swagger file'
+    required: true
+    default: 'develop.json'
+  source_file:  # swagger file to be validated
+    description: 'Source swagger file'
+    required: true
+    default: 'develop.json'
+  openapi_version:  # Valid values
+    description: 'OpenAPI version [2 for swagger2, 3 for openapi3 (default)]'
+    required: true
+    default: '3'
+  blocking_decision:
+    description: 'Decision to be taken on remaining steps if current action fails [strict for block, none for non-block (default)]'
+    required: true
+    default: 'none'
+outputs:
+  swagger_validation_results:
+    description: 'List of swagger errors'
+  openapi_diff_results:
+    description: 'List of swagger files differences'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

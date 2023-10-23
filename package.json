@@ -14,6 +14,6 @@
     "@actions/github": "^6.0.0",
     "@apidevtools/swagger-parser": "^10.1.0",
     "node-fetch": "^3.3.0",
-    "openapi-diff": "^0.16.0"
+    "openapi-diff": "^0.23.6"
   }
 }

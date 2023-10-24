@@ -14,7 +14,7 @@ const source = await sourceFile.json();
 const destinationFile = await fetch(`${core.getInput('benchmark_file')}`);
 const destination = await destinationFile.json();
 
-if(typeof source.swagger !== "undefined" && source.swagger === '2'){
+if(typeof source.swagger !== "undefined" && source.swagger === '2.0'){
 
   openAPIVersion = '2';
 

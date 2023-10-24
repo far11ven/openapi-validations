@@ -101936,7 +101936,7 @@ const source = await sourceFile.json();
 const destinationFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('benchmark_file')}`);
 const destination = await destinationFile.json();
 
-if(typeof source.swagger !== "undefined" && source.swagger === '2'){
+if(typeof source.swagger !== "undefined" && source.swagger === '2.0'){
 
   openAPIVersion = '2';
 

@@ -23,10 +23,6 @@ https://www.npmjs.com/package/swagger-parser
 
 **Required** The name of Source swagger file.
 
-### `openapi_version`
-
-**Required** OpenAPI version [2 for swagger2, 3 for openapi3 ].
-
 ### `blocking_decision`
 
 **Required** Decision to be taken on remaining steps if current action fails [strict for block, none for non-block (default)].
@@ -78,9 +74,8 @@ jobs:
         id: step1
         uses: far11ven/openapi-validations@v1.0.2
         with:
-          benchmark_file:  ${{ github.event.inputs.benchmark_file }}
           source_file:  ${{ github.event.inputs.source_file }}
-          openapi_version:  ${{ github.event.inputs.swagger_version }}
+          benchmark_file:  ${{ github.event.inputs.benchmark_file }}
           blocking_decision:  ${{ github.event.inputs.on_failure_decision }}
       # Use the output from the `hello` step
       - name: list the results

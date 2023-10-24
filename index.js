@@ -5,9 +5,7 @@ import openapiDiff from 'openapi-diff';
 import SwaggerParser from '@apidevtools/swagger-parser';
 
 // Valid values [2 for swagger2, 3 for openapi3 ]
-const openAPIVersion = core.getInput('openapi_version') == 2 ? 2 : 3 // default v3
-
-const specFormat = openAPIVersion == 2 ? 'swagger2' : 'openapi3'  //default openapi3
+let openAPIVersion;
 
 //[Method 1: Using files from server]
 const sourceFile = await fetch(`${core.getInput('source_file')}`);
@@ -15,6 +13,19 @@ const source = await sourceFile.json();
 
 const destinationFile = await fetch(`${core.getInput('benchmark_file')}`);
 const destination = await destinationFile.json();
+
+if(typeof source.swagger !== "undefined" && source.swagger === '2'){
+
+  openAPIVersion = '2';
+
+} else {
+  openAPIVersion = '3';
+
+}
+
+console.log('Source file swagger version: ', openAPIVersion)
+
+const specFormat = openAPIVersion == '2' ? 'swagger2' : 'openapi3'
 
 SwaggerParser.validate(source, (error, api) => {
   if (error) {
@@ -34,7 +45,8 @@ SwaggerParser.validate(source, (error, api) => {
   else {
     console.log('No Swagger validation error was found!!')
     console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-  
+    // console.log(JSON.stringify(api.swagger | api.open_api)) // add a check here for comparison with openAPIVersion
+    
     // // Get the JSON webhook payload for the event that triggered the workflow
     // const payload = JSON.stringify(github.context.payload, undefined, 2)
     // console.log(`The event payload: ${payload}`);

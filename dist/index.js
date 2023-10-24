@@ -101927,9 +101927,7 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 
 
 // Valid values [2 for swagger2, 3 for openapi3 ]
-const openAPIVersion = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('openapi_version') == 2 ? 2 : 3 // default v3
-
-const specFormat = openAPIVersion == 2 ? 'swagger2' : 'openapi3'  //default openapi3
+let openAPIVersion;
 
 //[Method 1: Using files from server]
 const sourceFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('source_file')}`);
@@ -101937,6 +101935,19 @@ const source = await sourceFile.json();
 
 const destinationFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('benchmark_file')}`);
 const destination = await destinationFile.json();
+
+if(typeof source.swagger !== "undefined" && source.swagger === '2'){
+
+  openAPIVersion = '2';
+
+} else {
+  openAPIVersion = '3';
+
+}
+
+console.log('Source file swagger version: ', openAPIVersion)
+
+const specFormat = openAPIVersion == '2' ? 'swagger2' : 'openapi3'
 
 _apidevtools_swagger_parser__WEBPACK_IMPORTED_MODULE_3__.validate(source, (error, api) => {
   if (error) {
@@ -101956,7 +101967,8 @@ _apidevtools_swagger_parser__WEBPACK_IMPORTED_MODULE_3__.validate(source, (error
   else {
     console.log('No Swagger validation error was found!!')
     console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-  
+    // console.log(JSON.stringify(api.swagger | api.open_api)) // add a check here for comparison with openAPIVersion
+    
     // // Get the JSON webhook payload for the event that triggered the workflow
     // const payload = JSON.stringify(github.context.payload, undefined, 2)
     // console.log(`The event payload: ${payload}`);

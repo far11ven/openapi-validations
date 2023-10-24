@@ -51,13 +51,6 @@ on:
           required: true
           type: string
           description: 'Source File Name:'
-        swagger_version:
-          required: true
-          type: choice
-          options:
-            - '2'
-            - '3'
-          description: 'openapi/swagger version:'
         on_failure_decision:
           required: true
           type: choice

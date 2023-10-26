@@ -58,6 +58,13 @@ on:
             - none
             - strict
           description: 'action if failed [strict, none (default)]'
+        type_of_validations:
+          required: true
+          type: choice
+          options:
+            - all
+            - schema-validation-only
+          description: 'type of validations to run [all (schema-validation + schema-diff) (default), schema-validation-only ]'
 jobs:
   validation_job:
     runs-on: ubuntu-latest
@@ -70,6 +77,7 @@ jobs:
           source_file:  ${{ github.event.inputs.source_file }}
           benchmark_file:  ${{ github.event.inputs.benchmark_file }}
           blocking_decision:  ${{ github.event.inputs.on_failure_decision }}
+          validations:  ${{ github.event.inputs.type_of_validations }}
       # Use the output from the `hello` step
       - name: list the results
         id: step2
@@ -83,4 +91,4 @@ jobs:
 
 - [x] workflow blocking decision support
 - [ ] add yaml support
-- [ ] conditional support for only including validation or diff
+- [x] conditional support for only including validation

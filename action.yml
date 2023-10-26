@@ -5,14 +5,18 @@ inputs:
     description: 'Source swagger file'
     required: true
     default: 'develop.json'
-  benchmark_file:  # benchmark swagger file
+  benchmark_file:  # benchmark swagger file (only required when validations !== 'schema-validation-only')
     description: 'benchmark swagger file'
-    required: true
+    required: false
     default: 'develop.json'
   blocking_decision:
     description: 'Decision to be taken on remaining steps if current action fails [strict for block, none for non-block (default)]'
     required: true
     default: 'none'
+  validations:
+    description: 'Type of validations to be run [all (default), schema-validation-only]'
+    required: true
+    default: 'all'
 outputs:
   swagger_validation_results:
     description: 'List of swagger validation errors'

@@ -101920,95 +101920,121 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(47826);
 /* harmony import */ var openapi_diff__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(66447);
 /* harmony import */ var _apidevtools_swagger_parser__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(55974);
- 
- 
-    // used when pulling files from server
+
+
+ // used when pulling files
 
 
 
 // Valid values [2 for swagger2, 3 for openapi3 ]
 let openAPIVersion;
 
-//[Method 1: Using files from server]
-const sourceFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('source_file')}`);
-const source = await sourceFile.json();
+//fetch source Swagger file
+const sourceFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("source_file")}`)
+const source = await sourceFile.json()
 
-const destinationFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('benchmark_file')}`);
-const destination = await destinationFile.json();
-
-if(typeof source.swagger !== "undefined" && source.swagger === '2.0'){
-
-  openAPIVersion = '2';
-
+if (typeof source.swagger !== "undefined" && source.swagger === "2.0") {
+  openAPIVersion = "2";
 } else {
-  openAPIVersion = '3';
-
+  openAPIVersion = "3";
 }
 
-console.log('Source file swagger version: ', openAPIVersion)
+console.log("Source file swagger version: ", openAPIVersion)
 
-const specFormat = openAPIVersion == '2' ? 'swagger2' : 'openapi3'
+const specFormat = openAPIVersion == "2" ? "swagger2" : "openapi3";
 
-_apidevtools_swagger_parser__WEBPACK_IMPORTED_MODULE_3__.validate(source, (error, api) => {
-  if (error) {
-    console.log("Error Log (Schema Validation) ====> ", error)
+// OpenAPI Schema Validation (always run on source file)
+_apidevtools_swagger_parser__WEBPACK_IMPORTED_MODULE_3__.validate(source, (validationResultsOrError, api) => {
+  if (validationResultsOrError) {
+    console.log("Result: (Schema Validation) ====> ", validationResultsOrError)
 
-      if(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('blocking_decision').toLowerCase() === 'strict') {
-        //only fail remaining workflow if blocking_decision == 'strict'
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Swagger validation error(s) found!!');
-      } else {
-        console.log('Swagger validation error(s) found!!')
-      }
-
-    // validate Source file:
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("swagger_validation_results", error);
-
-  }
-  else {
-    console.log('No Swagger validation error was found!!')
-    console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-    // console.log(JSON.stringify(api.swagger | api.open_api)) // add a check here for comparison with openAPIVersion
-    
-    // // Get the JSON webhook payload for the event that triggered the workflow
-    // const payload = JSON.stringify(github.context.payload, undefined, 2)
-    // console.log(`The event payload: ${payload}`);
-
-  }
-});
-
-openapi_diff__WEBPACK_IMPORTED_MODULE_2__.diffSpecs({
-  sourceSpec: {
-    content: JSON.stringify(source),
-    location: 'source.json',
-    format: specFormat
-  },
-  destinationSpec: {
-    content: JSON.stringify(destination),
-    location: 'destination.json',
-    format: specFormat
-  }
-}).then(result => {
-    let diffResults = result.breakingDifferences;
-    console.log('Result: (Swagger Diff): \n ', diffResults)
-
-    if (diffResults) {
-      if(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('blocking_decision').toLowerCase() === 'strict') {
-        //only fail remaining workflow if blocking_decision == 'strict'
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Breaking change(s) found!!');
-      } else {
-        console.log('Breaking change(s) found!!');
-      }
+    if (_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("blocking_decision").toLowerCase() === "strict") {
+      //only fail remaining workflow if blocking_decision == 'strict'
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed("Swagger validation error(s) found!!")
     } else {
-        console.log('No Breaking change was found!!')
+      console.log("Swagger validation error(s) found!!")
     }
 
-    // validate Source file differences with benchmark:
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("openapi_diff_results", diffResults);
+    // validate Source file:
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("swagger_validation_results", validationResultsOrError)
+  } else {
+    console.log("No Swagger validation error was found!!")
+    console.log("API name: %s, Version: %s", api.info.title, api.info.version)
 
-}).catch(error => {
-  console.log("Error Log (Swagger Diff) ====> ", error)
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+    // console.log(JSON.stringify(api.swagger | api.open_api)) // add a check here for comparison with openAPIVersion
+
+    // // Get the JSON webhook payload for the event that triggered the workflow
+    // const payload = JSON.stringify(github.context.payload, undefined, 2)
+    // console.log(`The event payload: ${payload}`)
+  }
 })
+
+// OpenAPI Diff (only run when validations = all)
+if (
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("validations").toLowerCase() !== "schema-validation-only" ||
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("validations").toLowerCase() === "all"
+) {
+
+  //fetch benchmark Swagger file
+  const destinationFile = await (0,node_fetch__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .ZP)(`${_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("benchmark_file")}`)
+  const destination = await destinationFile.json()
+
+  let benchmark_openAPIVersion;
+
+  if (
+    typeof destination.swagger !== "undefined" &&
+    destination.swagger === "2.0"
+  ) {
+    benchmark_openAPIVersion = "2";
+  } else {
+    benchmark_openAPIVersion = "3";
+  }
+
+  // check if source and destination swagger file have same openAPI spec-format
+  openAPIVersion === benchmark_openAPIVersion
+    ? console.log(
+        "Source and Benchmark swagger file have same OpenAPI spec-format/version"
+      )
+    : _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(
+        `Different OpenAPI spec-format/version used in Source swagger file ${openAPIVersion} and Benchmark swagger ${benchmark_openAPIVersion}`
+      )
+
+  openapi_diff__WEBPACK_IMPORTED_MODULE_2__.diffSpecs({
+      sourceSpec: {
+        content: JSON.stringify(source),
+        location: "source.json",
+        format: specFormat,
+      },
+      destinationSpec: {
+        content: JSON.stringify(destination),
+        location: "destination.json",
+        format: specFormat,
+      },
+    })
+    .then((result) => {
+      let diffResults = result.breakingDifferences;
+
+      if (diffResults) {
+        console.log("Result: (Swagger Diff): \n ", diffResults)
+
+        if (_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("blocking_decision").toLowerCase() === "strict") {
+          //only fail remaining workflow if blocking_decision == 'strict'
+          _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed("Breaking change(s) found!!")
+        } else {
+          console.log("Breaking change(s) found!!")
+        }
+      } else {
+        console.log("No Breaking change was found!!")
+      }
+
+      // validate Source file differences with benchmark:
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("openapi_diff_results", diffResults)
+    })
+    .catch((error) => {
+      console.log("Error Log (Swagger Diff) ====> ", error)
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message)
+    })
+}
 
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } }, 1);

@@ -15,17 +15,21 @@ https://www.npmjs.com/package/swagger-parser
 
 ## Inputs
 
-### `benchmark_file`
-
-**Required** The name of benchmark swagger file.
-
 ### `source_file`
 
 **Required** The name of Source swagger file.
 
+### `benchmark_file`
+
+**Required** The name of benchmark swagger file.
+
+### `validations`
+
+**Required** type of validations to run ['all' for (schema-validation + schema-diff) (default), 'schema-validation-only' ].
+
 ### `blocking_decision`
 
-**Required** Decision to be taken on remaining steps if current action fails [strict for block, none for non-block (default)].
+**Required** Decision to be taken on remaining steps if current action fails ['strict' for blocking, 'none' for no action (default)].
 
 
 ## Outputs
@@ -78,6 +82,7 @@ jobs:
           benchmark_file:  ${{ github.event.inputs.benchmark_file }}
           blocking_decision:  ${{ github.event.inputs.on_failure_decision }}
           validations:  ${{ github.event.inputs.type_of_validations }}
+
       # Use the output from the `hello` step
       - name: list the results
         id: step2
@@ -90,5 +95,5 @@ jobs:
 ## todos:
 
 - [x] workflow blocking decision support
-- [ ] add yaml support
 - [x] conditional support for only including validation
+- [ ] add yaml support

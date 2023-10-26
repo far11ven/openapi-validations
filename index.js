@@ -23,6 +23,8 @@ const specFormat = openAPIVersion == "2" ? "swagger2" : "openapi3";
 
 // OpenAPI Schema Validation (always run on source file)
 SwaggerParser.validate(source, (validationResultsOrError, api) => {
+  console.log("# Running Schema Validations...")
+
   if (validationResultsOrError) {
     console.log("Result: (Schema Validation) ====> ", validationResultsOrError)
 
@@ -53,28 +55,30 @@ if (
   core.getInput("validations").toLowerCase() === "all"
 ) {
 
+  console.log("# Running Schema Diff...");
+
   //fetch benchmark Swagger file
-  const destinationFile = await fetch(`${core.getInput("benchmark_file")}`)
-  const destination = await destinationFile.json()
+  const benchmarkFile = await fetch(`${core.getInput("benchmark_file")}`)
+  const benchmark = await benchmarkFile.json()
 
   let benchmark_openAPIVersion;
 
   if (
-    typeof destination.swagger !== "undefined" &&
-    destination.swagger === "2.0"
+    typeof benchmark.swagger !== "undefined" &&
+    benchmark.swagger === "2.0"
   ) {
     benchmark_openAPIVersion = "2";
   } else {
     benchmark_openAPIVersion = "3";
   }
 
-  // check if source and destination swagger file have same openAPI spec-format
+  // check if source and benchmark swagger file have same openAPI spec-format
   openAPIVersion === benchmark_openAPIVersion
     ? console.log(
-        "Source and Benchmark swagger file have same OpenAPI spec-format/version"
+        "Source and Benchmark swagger file have same OpenAPI spec-format/version."
       )
     : core.setFailed(
-        `Different OpenAPI spec-format/version used in Source swagger file ${openAPIVersion} and Benchmark swagger ${benchmark_openAPIVersion}`
+        `Different OpenAPI spec-format/version used in Source swagger file: ${openAPIVersion} and Benchmark swagger file: ${benchmark_openAPIVersion}`
       )
 
   openapiDiff
@@ -85,8 +89,8 @@ if (
         format: specFormat,
       },
       destinationSpec: {
-        content: JSON.stringify(destination),
-        location: "destination.json",
+        content: JSON.stringify(benchmark),
+        location: "benchmark.json",
         format: specFormat,
       },
     })
@@ -94,7 +98,7 @@ if (
       let diffResults = result.breakingDifferences;
 
       if (diffResults) {
-        console.log("Result: (Swagger Diff): \n ", diffResults)
+        console.log("Result: (Schema Diff): \n ", diffResults)
 
         if (core.getInput("blocking_decision").toLowerCase() === "strict") {
           //only fail remaining workflow if blocking_decision == 'strict'

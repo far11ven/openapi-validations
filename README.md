@@ -21,7 +21,7 @@ https://www.npmjs.com/package/swagger-parser
 
 ### `benchmark_file`
 
-**Required** The name of benchmark swagger file.
+**Conditionally Required** The name of benchmark swagger file. (Not Required when validations === 'schema-validation-only')
 
 ### `validations`
 
@@ -40,6 +40,7 @@ Errors found in Swagger schema validation
 ### `openapi_diff_results`
 Diffs found in Swagger schema comparison against the benchmark file
 
+
 ## Example usage
 
 ```yaml
@@ -55,13 +56,6 @@ on:
           required: true
           type: string
           description: 'Source File Name:'
-        on_failure_decision:
-          required: true
-          type: choice
-          options:
-            - none
-            - strict
-          description: 'action if failed [strict, none (default)]'
         type_of_validations:
           required: true
           type: choice
@@ -69,6 +63,13 @@ on:
             - all
             - schema-validation-only
           description: 'type of validations to run [all (schema-validation + schema-diff) (default), schema-validation-only ]'
+        on_failure_decision:
+          required: true
+          type: choice
+          options:
+            - none
+            - strict
+          description: 'action if failed [strict, none (default)]'
 jobs:
   validation_job:
     runs-on: ubuntu-latest
@@ -76,12 +77,12 @@ jobs:
     steps:
       - name: run swagger validations
         id: step1
-        uses: far11ven/openapi-validations@v1.0.2
+        uses: far11ven/openapi-validations@v1.0.6
         with:
           source_file:  ${{ github.event.inputs.source_file }}
           benchmark_file:  ${{ github.event.inputs.benchmark_file }}
-          blocking_decision:  ${{ github.event.inputs.on_failure_decision }}
           validations:  ${{ github.event.inputs.type_of_validations }}
+          blocking_decision:  ${{ github.event.inputs.on_failure_decision }}
 
       # Use the output from the `hello` step
       - name: list the results

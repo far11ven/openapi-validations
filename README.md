@@ -1,4 +1,9 @@
-This action lists swagger schema errors and comparisons. (swagger version 2 and 3)
+This action supports both swagger2 and OpenAPI3.
+
+There are two primary objectives for this action:
+
+1) Validate provided 2 swagger json for validation errors (always performed)
+2) Verify any breaking changes between the 2 swagger specifications (can be skipped)
 
 ## Action Overview:
 This action validates a swagger schema using 'swagger-parser' capabilities for swagger schema validation and using 'openapi-diff' capabilities for finding API breaking changes.
@@ -15,13 +20,13 @@ https://www.npmjs.com/package/swagger-parser
 
 ## Inputs
 
-### `source_file`
+### `source_file` (source.json)
 
-**Required** The name of Source swagger file. (source.json)
+**Required** The name of Source swagger file. 
 
-### `benchmark_file`
+### `benchmark_file` (destination.json)
 
-**Conditionally Required** The name of benchmark swagger file. (destination.json) (Not Required when validations === 'schema-validation-only')
+**Conditionally Required** The name of benchmark swagger file. (Not Required when validations === 'schema-validation-only')
 
 ### `validations`
 
@@ -39,6 +44,20 @@ Errors found in Swagger schema validation
 
 ### `openapi_diff_results`
 Diffs found in Swagger schema comparison against the benchmark file
+
+
+## Breaking vs Non-Breaking Changes:
+### Breaking Changes:
+ - Response Code changed
+ - Response ContentType Changed
+ - Response Field Type changed (for ex array to String etc)
+ - Endpoint path removed
+ - Request Method changed
+### Non-Breaking Changes:
+ - ParamType changed (Path, Query, etc)
+ - RequestBody ContentType Changed
+ - RequestBody fieldType Changed
+ - RequestBody field required status changed etc
 
 
 ## Example usage

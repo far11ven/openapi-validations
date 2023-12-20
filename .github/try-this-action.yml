@@ -1,50 +1,4 @@
-This action lists swagger schema errors and comparisons. (swagger version 2 and 3)
-
-## Action Overview:
-This action validates a swagger schema using 'swagger-parser' capabilities for swagger schema validation and using 'openapi-diff' capabilities for finding API breaking changes.
-
-
-### npm packages used:
-Following both packages support swagger2 & openapi3 (i.e. swagger version 2 and 3)
-
-```
-https://www.npmjs.com/package/openapi-diff
-
-https://www.npmjs.com/package/swagger-parser
-```
-
-## Inputs
-
-### `source_file`
-
-**Required** The name of Source swagger file. (source.json)
-
-### `benchmark_file`
-
-**Conditionally Required** The name of benchmark swagger file. (destination.json) (Not Required when validations === 'schema-validation-only')
-
-### `validations`
-
-**Required** type of validations to run ['all' for (schema-validation + schema-diff) (default), 'schema-validation-only' ].
-
-### `blocking_decision`
-
-**Required** Decision to be taken on remaining steps if current action fails ['strict' for blocking, 'none' for no action (default)].
-
-
-## Outputs
-
-### `swagger_validation_results`
-Errors found in Swagger schema validation
-
-### `openapi_diff_results`
-Diffs found in Swagger schema comparison against the benchmark file
-
-
-## Example usage
-
-```yaml
-name: simple-action
+name: try-this-action
 on:
     workflow_dispatch:
       inputs:
@@ -90,11 +44,4 @@ jobs:
         run: |
           echo "The Errors found in Swagger schema: ${{ steps.step1.outputs.swagger_validation_results }}"
           echo "The Diffs found in Swagger schema comparison ${{ steps.step1.outputs.openapi_diff_results }}"
-
-```
-
-## todos:
-
-- [x] workflow blocking decision support
-- [x] conditional support for only including validation
-- [ ] add yaml swagger support
+        
